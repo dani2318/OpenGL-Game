@@ -21,13 +21,25 @@ INCLUDES = -I./include \
 LIBDIRS = -L./vendor/glfw/lib \
           -L./vendor/glm/lib \
           -L./vendor/glad/lib
+
 LIBS = -lglfw3 -lopengl32 -lgdi32 -luser32 -lkernel32 -lshell32 -lmsvcrt -lucrt
 
-# Find all .cpp files in src directory
-SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
-OBJECTS = $(SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+# Find all .cpp files using wildcard (supports up to 3 levels deep)
+SOURCES = $(wildcard $(SRC_DIR)/*.cpp) \
+          $(wildcard $(SRC_DIR)/*/*.cpp) \
+          $(wildcard $(SRC_DIR)/*/*/*.cpp) \
+          $(wildcard include/*.cpp) \
+          $(wildcard include/*/*.cpp) \
+          $(wildcard include/*/*/*.cpp)
 
-# GLAD source (assuming it's in vendor/glad/src/ or lib/)
+# Convert sources to objects, preserving relative directory structure
+define src_to_obj
+$(patsubst %.cpp,$(OBJ_DIR)/%.o,$(subst /,_,$(subst \,_,$(1))))
+endef
+
+OBJECTS = $(foreach src,$(SOURCES),$(call src_to_obj,$(notdir $(src))))
+
+# GLAD source
 GLAD_SRC = vendor/glad/src/glad.c
 GLAD_OBJ = $(OBJ_DIR)/glad.o
 
@@ -41,9 +53,15 @@ all: $(TARGET)
 $(TARGET): $(OBJECTS) $(GLAD_OBJ) | $(BUILD_DIR)
 	$(CXX) $(LDFLAGS) $(OBJECTS) $(GLAD_OBJ) -o $@ $(LIBDIRS) $(LIBS)
 
-# Compile .cpp files to .o files
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+# Create specific rules for each source file found
+define create_obj_rule
+$(OBJ_DIR)/$(subst /,_,$(subst \,_,$(notdir $(1:.cpp=.o)))): $(1) | $(OBJ_DIR)
+	@echo Compiling $$<...
+	@if not exist "$$(@D)" mkdir "$$(@D)"
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $$< -o $$@
+endef
+
+$(foreach src,$(SOURCES),$(eval $(call create_obj_rule,$(src))))
 
 # Compile GLAD with C compiler
 $(GLAD_OBJ): $(GLAD_SRC) | $(OBJ_DIR)
