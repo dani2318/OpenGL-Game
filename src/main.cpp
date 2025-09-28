@@ -5,6 +5,8 @@
 
 #include <graphics/Shader.h>
 #include <graphics/buffers/VBO.h>
+#include <graphics/buffers/VAO.h>
+#include <graphics/buffers/EBO.h>
 
 constexpr int WIDTH = 1280;
 constexpr int HEIGHT = 720;
@@ -23,10 +25,16 @@ void processInput(GLFWwindow *window)
 }
 
 float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
-};  
+     0.5f,  0.5f, 0.0f,  // top right    (0)
+     0.5f, -0.5f, 0.0f,  // bottom right (1)
+    -0.5f, -0.5f, 0.0f,  // bottom left  (2)
+    -0.5f,  0.5f, 0.0f   // top left     (3)
+};
+
+unsigned int indices[] = {
+    0, 1, 3,   // first triangle
+    1, 2, 3    // second triangle
+};
 
 int main(int argc, char **argv) {
   if(!glfwInit()){
@@ -72,21 +80,32 @@ int main(int argc, char **argv) {
     "}\0";
   
   VBO* vbo = new VBO(sizeof(vertices),vertices);
+  VAO* vao = new VAO(vbo);
+  EBO* ebo = new EBO();
   ShaderProgram* shader = new ShaderProgram(vertexShaderSource, fragmentShaderSource);
+
+  vao->Bind();
+
+  vbo->Bind();
+  vbo->SetBufferData(sizeof(vertices), vertices);
+
+  ebo->Bind();
+  ebo->SetBufferData(sizeof(indices), indices);
+
+  vao->SetBufferData(3);
+
+  std::cout << "VBO ID: " << vbo->getID() << " VAO ID: " << vao->getID() << " EBO ID: " << ebo->getID() << std::endl;
 
   while(!glfwWindowShouldClose(window)){
     processInput(window);
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    // 0. copy our vertices array in a buffer for OpenGL to use
-    glBindBuffer(GL_ARRAY_BUFFER, vbo->getID());
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    // 1. then set the vertex attributes pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);  
-    // 2. use our shader program when we want to render an object
+
     shader->use();
+    vao->Bind();
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    vao->Unbind();
 
     glfwSwapBuffers(window);
     glfwPollEvents();

@@ -1,0 +1,7 @@
+[
+  {
+    "directory": "C:/path/to/your/project",
+    "command": "clang++ -std=c++26 -I./include -I./vendor/glfw/include -I./vendor/glad/include -I./vendor/glm/include -I./vendor/glad/src -D_DEBUG -DUNICODE -D_UNICODE -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DGLFW_INCLUDE_NONE --target=x86_64-pc-windows-msvc -c src/main.cpp -o build/obj/main.o",
+    "file": "src/main.cpp"
+  }
+]
