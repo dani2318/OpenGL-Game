@@ -64,25 +64,10 @@ int main(int argc, char **argv) {
   glViewport(0, 0, WIDTH, HEIGHT);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
 
-
-  const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-
-  const char *fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\0";
-  
-  VBO* vbo = new VBO(sizeof(vertices),vertices);
-  VAO* vao = new VAO(vbo);
-  EBO* ebo = new EBO();
-  ShaderProgram* shader = new ShaderProgram(vertexShaderSource, fragmentShaderSource);
+  auto vbo = std::make_unique<VBO>();
+  auto vao = std::make_unique<VAO>(vbo.get());
+  auto ebo = std::make_unique<EBO>();
+  ShaderProgram* shader = new ShaderProgram();
 
   vao->Bind();
 
@@ -93,8 +78,6 @@ int main(int argc, char **argv) {
   ebo->SetBufferData(sizeof(indices), indices);
 
   vao->SetBufferData(3);
-
-  std::cout << "VBO ID: " << vbo->getID() << " VAO ID: " << vao->getID() << " EBO ID: " << ebo->getID() << std::endl;
 
   while(!glfwWindowShouldClose(window)){
     processInput(window);
@@ -110,6 +93,8 @@ int main(int argc, char **argv) {
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
+
+  delete shader;
 
   glfwDestroyWindow(window);
   glfwTerminate();

@@ -57,6 +57,15 @@
         "xmemory": "cpp",
         "xstring": "cpp",
         "xtr1common": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "filesystem": "cpp",
+        "chrono": "cpp",
+        "codecvt": "cpp",
+        "expected": "cpp",
+        "forward_list": "cpp",
+        "fstream": "cpp",
+        "print": "cpp",
+        "ratio": "cpp",
+        "sstream": "cpp"
     }
 }

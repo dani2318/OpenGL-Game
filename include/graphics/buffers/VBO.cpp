@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 
 
-VBO::VBO(int size, float data[]){
+VBO::VBO(){
   glGenBuffers(1, &this->ID);
 }
 

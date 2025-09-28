@@ -7,7 +7,7 @@ OBJ_DIR = $(BUILD_DIR)/obj
 # Compiler settings
 CXX = clang++
 CC = clang
-CXXFLAGS = -std=c++17 -Wall -Wextra -g
+CXXFLAGS = -std=c++23 -Wall -Wextra -g
 CFLAGS = -Wall -Wextra -g
 LDFLAGS = -Wl,/NODEFAULTLIB:libcmt
 
@@ -76,7 +76,7 @@ $(OBJ_DIR):
 
 # Clean build files
 clean:
-	@if exist "$(BUILD_DIR)" rmdir /s /q "$(BUILD_DIR)"
+	@if exist "$(BUILD_DIR)" powershell -Command "Get-ChildItem -Path '$(BUILD_DIR)' -Exclude 'shaders' | Remove-Item -Recurse -Force"
 
 # Run the executable
 run: $(TARGET)

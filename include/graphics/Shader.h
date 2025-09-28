@@ -1,4 +1,10 @@
 #pragma once
+#include <string>
+#include <expected>
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 class Shader{
     public:
         Shader(unsigned int type, const char* source);
@@ -6,7 +12,6 @@ class Shader{
         unsigned int getType() const { return this->Type; };
     private:
         unsigned int Id;
-        const char * Source;
         unsigned int Type;
 };
 
@@ -25,7 +30,10 @@ class ShaderProgram{
  
     public:
         void use();
-        ShaderProgram(const char* vertexSource, const char* fragmentSource);
+        ShaderProgram();
+        ~ShaderProgram() {
+            glDeleteProgram(this->Id);
+        }
     private:
         unsigned int Id;
         VertexShader* Vertexshader;

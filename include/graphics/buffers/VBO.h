@@ -2,7 +2,7 @@
 
 class VBO{
     public:
-        VBO(int size, float data[]);
+        VBO();
 
         void Unbind();
         void Bind();
