@@ -7,67 +7,73 @@
 #include <graphics/buffers/VBO.h>
 #include <graphics/buffers/VAO.h>
 #include <graphics/buffers/EBO.h>
+#include <graphics/window.h>
 
-constexpr int WIDTH = 1280;
-constexpr int HEIGHT = 720;
-
-GLFWwindow* window = nullptr;
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+struct WindowParameters
 {
-    glViewport(0, 0, width, height);
-}  
+  WindowSize size;
+  const char *title;
+};
+
+constexpr WindowParameters windowParams = {{1280, 720}, "OpenGL game"};
+
+Window *main_window = nullptr;
+
+void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+{
+  glViewport(0, 0, width, height);
+}
 
 void processInput(GLFWwindow *window)
 {
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    glfwSetWindowShouldClose(window, true);
+  if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  else
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 float vertices[] = {
-     0.5f,  0.5f, 0.0f,  // top right    (0)
-     0.5f, -0.5f, 0.0f,  // bottom right (1)
-    -0.5f, -0.5f, 0.0f,  // bottom left  (2)
-    -0.5f,  0.5f, 0.0f   // top left     (3)
+    0.5f, 0.5f, 0.0f,   // top right    (0)
+    0.5f, -0.5f, 0.0f,  // bottom right (1)
+    -0.5f, -0.5f, 0.0f, // bottom left  (2)
+    -0.5f, 0.5f, 0.0f   // top left     (3)
 };
 
 unsigned int indices[] = {
-    0, 1, 3,   // first triangle
-    1, 2, 3    // second triangle
+    0, 1, 3, // first triangle
+    1, 2, 3  // second triangle
 };
 
-int main(int argc, char **argv) {
-  if(!glfwInit()){
+int main(int argc, char **argv)
+{
+  if (!glfwInit())
+  {
     std::cerr << "Failed to initialize GLFW" << std::endl;
     return -1;
   }
 
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-  window = glfwCreateWindow(WIDTH,HEIGHT, "Test", nullptr, nullptr);
-  if(!window){
-    std::cerr << "Failed create Window" << std::endl;
-    glfwTerminate();
-    return -1;
-  }
+  main_window = new Window(windowParams.size, windowParams.title);
 
-  glfwMakeContextCurrent(window);
-
-  if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
+  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+  {
     std::cerr << "Failed to initialize GLAD" << std::endl;
     return -1;
   }
 
-  glViewport(0, 0, WIDTH, HEIGHT);
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
+  glViewport(0, 0, windowParams.size.w, windowParams.size.h);
+  glfwSetFramebufferSizeCallback(main_window->getWindow(), framebuffer_size_callback);
 
   auto vbo = std::make_unique<VBO>();
   auto vao = std::make_unique<VAO>(vbo.get());
   auto ebo = std::make_unique<EBO>();
-  ShaderProgram* shader = new ShaderProgram();
+  ShaderProgram *shader = new ShaderProgram();
 
   vao->Bind();
 
@@ -79,8 +85,9 @@ int main(int argc, char **argv) {
 
   vao->SetBufferData(3);
 
-  while(!glfwWindowShouldClose(window)){
-    processInput(window);
+  while (!glfwWindowShouldClose(main_window->getWindow()))
+  {
+    processInput(main_window->getWindow());
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -90,13 +97,14 @@ int main(int argc, char **argv) {
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     vao->Unbind();
 
-    glfwSwapBuffers(window);
+    glfwSwapBuffers(main_window->getWindow());
     glfwPollEvents();
   }
 
   delete shader;
+  delete main_window;
 
-  glfwDestroyWindow(window);
+  glfwDestroyWindow(main_window->getWindow());
   glfwTerminate();
 
   return 0;
