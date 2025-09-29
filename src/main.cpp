@@ -27,7 +27,8 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 void processInput(GLFWwindow *window)
 {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, true);
+    glfwSetWindowShouldClose(window, true); //TODO: Change this to show in game pause UI
+
   if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   else
@@ -70,21 +71,31 @@ int main(int argc, char **argv)
   glViewport(0, 0, windowParams.size.w, windowParams.size.h);
   glfwSetFramebufferSizeCallback(main_window->getWindow(), framebuffer_size_callback);
 
+  // Shader setup
   auto vbo = std::make_unique<VBO>();
   auto vao = std::make_unique<VAO>(vbo.get());
   auto ebo = std::make_unique<EBO>();
   ShaderProgram *shader = new ShaderProgram();
 
   vao->Bind();
-
   vbo->Bind();
   vbo->SetBufferData(sizeof(vertices), vertices);
-
   ebo->Bind();
   ebo->SetBufferData(sizeof(indices), indices);
-
   vao->SetBufferData(3);
 
+
+  //Texture setup
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+  float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);  
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  //Main loop
   while (!glfwWindowShouldClose(main_window->getWindow()))
   {
     processInput(main_window->getWindow());
@@ -101,6 +112,7 @@ int main(int argc, char **argv)
     glfwPollEvents();
   }
 
+  //Cleanup
   delete shader;
   delete main_window;
 

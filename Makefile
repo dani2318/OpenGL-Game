@@ -15,6 +15,7 @@ LDFLAGS = -Wl,/NODEFAULTLIB:libcmt
 INCLUDES = -I./include \
            -I./vendor/glfw/include \
            -I./vendor/glm/include \
+           -I./vendor/stb/include \
            -I./vendor/glad/include
 
 # Library directories and libraries

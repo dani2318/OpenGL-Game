@@ -16,10 +16,10 @@
 
 
 std::expected<std::filesystem::path, std::string> getExecPath(){
-    constexpr DWORD BUFFER_SIZE = MAX_PATH;
+    constexpr unsigned long BUFFER_SIZE = MAX_PATH;
     char path[BUFFER_SIZE];
 
-    DWORD result = GetModuleFileNameA(nullptr, path, BUFFER_SIZE);
+    unsigned long result = GetModuleFileNameA(nullptr, path, BUFFER_SIZE);
 
     if (result == 0) {
         return std::unexpected(std::format("Failed to get executable path, error: {}", GetLastError()));
@@ -58,7 +58,7 @@ std::expected<std::string, std::string> readShaderFromfile(const std::string& sh
 Shader::Shader(unsigned int type, const char* source)
     : Id(glCreateShader(type)), Type(type){
 
-    std::string shaderPath = std::format("shaders\\{}", source);
+    std::string shaderPath = std::format("gamedata\\shaders\\{}", source);
     const std::expected<std::string, std::string> result = readShaderFromfile(shaderPath);
     
     if (!result.has_value()) {
