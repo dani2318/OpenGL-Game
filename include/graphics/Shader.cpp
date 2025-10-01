@@ -66,6 +66,7 @@ Shader::Shader(unsigned int type, const char* source)
 
     if (!RESULT.has_value()) {
         std::cerr << "Failed to load shader source: " << RESULT.error() << '\n';
+        this->id = 0;
         return;
     }
 
@@ -98,6 +99,13 @@ void ShaderProgram::Use() const{
 }
 
 ShaderProgram::ShaderProgram() : id(glCreateProgram()), vertexshader(new VertexShader(GL_VERTEX_SHADER, "vertexShader.glsl")), fragmentshader(new FragmentShader(GL_FRAGMENT_SHADER, "fragmentShader.glsl")){
+
+    if (this->vertexshader->GetId() == 0 || this->fragmentshader->GetId() == 0) {
+        std::cerr << "CRITICAL: Shader objects failed to initialize. Aborting program linkage.\n";
+        // Optionally, throw an exception or set this->id to 0 and return.
+        this->id = 0;
+        return;
+    }
 
     glAttachShader(this->id, this->vertexshader->GetId());
     glAttachShader(this->id, this->fragmentshader->GetId());

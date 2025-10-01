@@ -3,13 +3,14 @@
 
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
-#include <vendor_include_stb/stb_image.h>
+
 
 class Texture2D{
     public:
         Texture2D(std::string texture_path);
-        static void Bind(unsigned int tex_id);
+        void Bind() const;
         static void Activate(unsigned int texture_unit);
+        bool Generate();
 
         [[nodiscard]] int NrChannels() const { return nr_channels; };
         [[nodiscard]] int Width() const { return width; };
@@ -17,9 +18,8 @@ class Texture2D{
         [[nodiscard]] unsigned int Id() const { return id; };
     private:
         bool LoadTexture();
-        bool Generate();
         int width{}, height{}, nr_channels{};
         unsigned char *data = nullptr;
-        unsigned int id = -1;
+        unsigned int id{};
         std::string texture_path;
 };

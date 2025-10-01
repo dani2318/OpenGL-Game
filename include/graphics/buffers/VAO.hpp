@@ -10,7 +10,7 @@ class VAO{
 
         static void Unbind();
         void Bind() const;
-        void SetBufferData(int index, int size, int num_vertex_attrib_array, GLsizei stride, GLsizei pointer);
+        void SetBufferData(int index, int size, GLsizei stride, GLsizei pointer);
 
         [[nodiscard]] unsigned int GetId() const { return this->id; };
     private:

@@ -1,15 +1,18 @@
 #include "Texture.hpp"
 #include <iostream>
+#include <utility>
+#include <utility>
 #include <utils/utilities.hpp>
-
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 Texture2D::Texture2D(std::string texture_path)
-    : texture_path(texture_path)
+    : texture_path(std::move(std::move(texture_path)))
 {
     glGenTextures(1, &this->id);
 }
 
-void Texture2D::Bind(unsigned int tex_id){
-    glBindTexture(GL_TEXTURE_2D, tex_id);
+void Texture2D::Bind() const{
+    glBindTexture(GL_TEXTURE_2D, this->Id());
 }
 
 void Texture2D::Activate(unsigned int texture_unit){
@@ -18,22 +21,21 @@ void Texture2D::Activate(unsigned int texture_unit){
 
 bool Texture2D::LoadTexture(){
 
-    auto exe_dir = GetExecutablePath();
+    auto exe_path = GetExecutablePath();
+    auto exe_dir = exe_path.parent_path();
+    const auto TEX_PATH = exe_dir / texture_path.c_str();
 
-    const auto TEX_PATH = exe_dir.relative_path() / texture_path.c_str();
-    const std::string PATH_STR = TEX_PATH.string();
-    const char* path = PATH_STR.c_str();
-
+    std::cerr << "Attempting to load texture from: " << TEX_PATH << '\n';
     if (this->data != nullptr) {
         stbi_image_free(this->data);
         this->data = nullptr;
     }
-
-    unsigned char *loaded_data = stbi_load(path, &this->width, &this->height, &this->nr_channels, 0);
+    stbi_set_flip_vertically_on_load(1);
+    unsigned char *loaded_data = stbi_load(TEX_PATH.string().c_str(), &this->width, &this->height, &this->nr_channels, 0);
 
     if (loaded_data == nullptr)
     {
-        std::string error_msg = "Failed to load texture '" + PATH_STR + "': " + std::string(stbi_failure_reason());
+        std::string error_msg = "Failed to load texture '" + TEX_PATH.string() + "': " + std::string(stbi_failure_reason());
         std::cerr << "STB Error: " << error_msg << '\n';
         return false;
     }
@@ -45,7 +47,7 @@ bool Texture2D::LoadTexture(){
 bool Texture2D::Generate(){
 
     glGenTextures(1, &this->id);
-    this->Bind(GL_TEXTURE0);
+    this->Bind();
 
     auto load_result = LoadTexture();
     if(!load_result) {
@@ -66,18 +68,23 @@ bool Texture2D::Generate(){
     GLint internal_format = 0;
     GLenum data_format = 0;
 
-    if (this->nr_channels == 4)
-    {
+    if (this->nr_channels == 4) {
         internal_format = GL_RGBA;
         data_format = GL_RGBA;
-    }
-    else if (this->nr_channels == 3)
-    {
+    } else if (this->nr_channels == 3) {
         internal_format = GL_RGB;
         data_format = GL_RGB;
-    }
-    else {
-        std::cerr << "Warning: Unsupported number of channels: " << this->nr_channels << "\n";
+    } else if (this->nr_channels == 1) { // <-- Added support for Grayscale
+        internal_format = GL_RED;
+        data_format = GL_RED;
+    } else {
+        std::cerr << "Error: Unsupported number of channels: " << this->nr_channels << "\n";
+        // *** You should fail the generation here! ***
+        glDeleteTextures(1, &this->id);
+        this->id = 0;
+        stbi_image_free(this->data);
+        this->data = nullptr;
+        return false;
     }
 
 

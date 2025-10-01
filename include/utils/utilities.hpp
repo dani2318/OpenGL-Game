@@ -28,5 +28,5 @@ std::filesystem::path GetExecutablePath(){
         throw std::exception("Executable path too long");
     }
 
-    return std::filesystem::path(path).parent_path();
+    return std::filesystem::path(path);
 }
