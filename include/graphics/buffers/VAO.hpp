@@ -1,0 +1,19 @@
+#pragma once
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include "VBO.hpp"
+
+class VAO{
+    public:
+        VAO(VBO* vbo);
+
+        static void Unbind();
+        void Bind() const;
+        void SetBufferData(int index, int size, int num_vertex_attrib_array, GLsizei stride, GLsizei pointer);
+
+        [[nodiscard]] unsigned int GetId() const { return this->id; };
+    private:
+        unsigned int id{};
+        VBO* vbo = nullptr;
+};

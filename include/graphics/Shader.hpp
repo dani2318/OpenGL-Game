@@ -1,6 +1,4 @@
 #pragma once
-#include <string>
-#include <expected>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -8,11 +6,11 @@
 class Shader{
     public:
         Shader(unsigned int type, const char* source);
-        unsigned int getID() const { return this->Id; };
-        unsigned int getType() const { return this->Type; };
+        [[nodiscard]] unsigned int GetId() const { return this->id; };
+        [[nodiscard]] unsigned int GetType() const { return this->type; };
     private:
-        unsigned int Id;
-        unsigned int Type;
+        unsigned int id{};
+        unsigned int type{};
 };
 
 
@@ -27,16 +25,16 @@ class FragmentShader : public Shader {
 };
 
 class ShaderProgram{
- 
+
     public:
-        void use();
+        void Use() const;
+        [[nodiscard]] unsigned int GetId() const {return this->id;};
         ShaderProgram();
         ~ShaderProgram() {
-            glDeleteProgram(this->Id);
+            glDeleteProgram(this->id);
         }
     private:
-        unsigned int Id;
-        VertexShader* Vertexshader;
-        FragmentShader* Fragmentshader;
+        unsigned int id;
+        VertexShader* vertexshader;
+        FragmentShader* fragmentshader;
 };
-

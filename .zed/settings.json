@@ -1,71 +1,22 @@
 {
-  "tab_size": 4,
-  "hard_tabs": false,
-  "format_on_save": "off",
-  "autosave": "on_focus_change",
   "lsp": {
     "clangd": {
       "binary": {
-        "path": "clangd",
-        "arguments": [
-          "--background-index",
-          "--completion-style=detailed",
-          "--compile-commands-dir=build",
-          "--query-driver=C:/Program Files/LLVM/bin/clang++.exe",
-          "--header-insertion=iwyu",
-          "--clang-tidy",
-          "--log=verbose"
-        ]
+        "path": "C:/Program Files/LLVM/bin/clangd.exe"
       },
       "initialization_options": {
-        "compilationDatabasePath": "./build",
+        "compilationDatabasePath": ".",
         "fallbackFlags": [
-          "-std=c++26",
-          "-xc++",
-          "-Wall",
-          "-Wextra",
-          "-I./include",
-          "-I./vendor/glfw/include",
-          "-I./vendor/glad/include",
-          "-I./vendor/glm/include",
-          "-I./vendor/glad/src",
+          "-Ivendor/glfw/include",
+          "-Ivendor/glad/include",
+          "-Ivendor/glm/include",
+          "-Iinclude",
           "-D_DEBUG",
           "-DUNICODE",
           "-D_UNICODE",
-          "-DNOMINMAX",
-          "-DWIN32_LEAN_AND_MEAN",
-          "-DGLFW_INCLUDE_NONE",
-          "--target=x86_64-pc-windows-msvc",
-          "-resource-dir=C:/Program Files/LLVM/lib/clang/18"
+          "-std=c++23"
         ]
       }
     }
-  },
-  "languages": {
-    "C++": {
-      "format_on_save": "off",
-      "tab_size": 4,
-      "hard_tabs": false
-    },
-    "C": {
-      "format_on_save": "off",
-      "tab_size": 4,
-      "hard_tabs": false
-    }
-  },
-  "file_scan_exclusions": [
-    "**/build/**",
-    "**/obj/**",
-    "**/bin/**",
-    "**/.vs/**",
-    "**/*.exe",
-    "**/*.o",
-    "**/*.obj",
-    "**/*.pdb",
-    "**/*.ilk"
-  ],
-  "show_completions_on_input": true,
-  "diagnostics": {
-    "include_warnings": true
   }
 }

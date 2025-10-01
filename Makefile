@@ -15,7 +15,6 @@ LDFLAGS = -Wl,/NODEFAULTLIB:libcmt
 INCLUDES = -I./include \
            -I./vendor/glfw/include \
            -I./vendor/glm/include \
-           -I./vendor/stb/include \
            -I./vendor/glad/include
 
 # Library directories and libraries
@@ -77,7 +76,7 @@ $(OBJ_DIR):
 
 # Clean build files
 clean:
-	@if exist "$(BUILD_DIR)" powershell -Command "Get-ChildItem -Path '$(BUILD_DIR)' -Exclude 'shaders' | Remove-Item -Recurse -Force"
+	@if exist "$(BUILD_DIR)" powershell -Command "Get-ChildItem -Path '$(BUILD_DIR)' -Exclude 'gamedata' | Remove-Item -Recurse -Force"
 
 # Run the executable
 run: $(TARGET)

@@ -1,4 +1,4 @@
-#include "Shader.h"
+#include "Shader.hpp"
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -12,10 +12,10 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <print>
+#include <expected>
 
 
-std::expected<std::filesystem::path, std::string> getExecPath(){
+std::expected<std::filesystem::path, std::string> GetExecutablePath(){
     constexpr unsigned long BUFFER_SIZE = MAX_PATH;
     char path[BUFFER_SIZE];
 
@@ -33,21 +33,24 @@ std::expected<std::filesystem::path, std::string> getExecPath(){
 
 }
 
-std::expected<std::string, std::string> readShaderFromfile(const std::string& shaderFileName){
-    auto exe_dir = getExecPath();
+std::expected<std::string, std::string> ReadShaderFromfile(const std::string& shader_file_name){
+    auto exe_dir = GetExecutablePath();
 
-    if(!exe_dir)
+    if(!exe_dir) {
         return std::unexpected(exe_dir.error());
-    
-    const auto shaderPath = *exe_dir / shaderFileName;
+}
 
-    if(!std::filesystem::exists(shaderPath))
-        return std::unexpected(std::format("Shader not found <{}>", shaderPath.string()));
+    const auto SHADER_PATH = *exe_dir / shader_file_name;
 
-    std::ifstream file(shaderPath,std::ios::binary);
-    if(!file)
-        return std::unexpected(std::format("Cannot open <{}>", shaderPath.string()));
-    
+    if(!std::filesystem::exists(SHADER_PATH)) {
+        return std::unexpected(std::format("Shader not found <{}>", SHADER_PATH.string()));
+}
+
+    std::ifstream file(SHADER_PATH,std::ios::binary);
+    if(!file) {
+        return std::unexpected(std::format("Cannot open <{}>", SHADER_PATH.string()));
+}
+
     std::stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
@@ -56,28 +59,28 @@ std::expected<std::string, std::string> readShaderFromfile(const std::string& sh
 
 
 Shader::Shader(unsigned int type, const char* source)
-    : Id(glCreateShader(type)), Type(type){
+    : id(glCreateShader(type)){
 
-    std::string shaderPath = std::format("gamedata\\shaders\\{}", source);
-    const std::expected<std::string, std::string> result = readShaderFromfile(shaderPath);
-    
-    if (!result.has_value()) {
-        std::cerr << "Failed to load shader source: " << result.error() << std::endl;
+    std::string shader_path = std::format("gamedata\\shaders\\{}", source);
+    const std::expected<std::string, std::string> RESULT = ReadShaderFromfile(shader_path);
+
+    if (!RESULT.has_value()) {
+        std::cerr << "Failed to load shader source: " << RESULT.error() << '\n';
         return;
     }
 
-    const std::string& src = result.value();
-    const char* srcPtr = src.c_str();
-    glShaderSource(this->Id, 1, &srcPtr, NULL);
-    glCompileShader(this->Id);
+    const std::string& src = RESULT.value();
+    const char* src_ptr = src.c_str();
+    glShaderSource(this->id, 1, &src_ptr, nullptr);
+    glCompileShader(this->id);
 
     // Check for compile errors
-    int success;
-    char infoLog[512];
-    glGetShaderiv(this->Id, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(this->Id, 512, nullptr, infoLog);
-        std::cerr << "Shader Compilation Failed:\n" << infoLog << std::endl;
+    int success = 0;
+    char info_log[512];
+    glGetShaderiv(this->id, GL_COMPILE_STATUS, &success);
+    if (success == 0) {
+        glGetShaderInfoLog(this->id, 512, nullptr, info_log);
+        std::cerr << "Shader Compilation Failed:\n" << info_log << '\n';
     }
 }
 
@@ -90,28 +93,22 @@ FragmentShader::FragmentShader(unsigned int type, const char* source) : Shader(t
 }
 
 
-void ShaderProgram::use(){
-    glUseProgram(this->Id);
+void ShaderProgram::Use() const{
+    glUseProgram(this->id);
 }
 
-ShaderProgram::ShaderProgram(){
+ShaderProgram::ShaderProgram() : id(glCreateProgram()), vertexshader(new VertexShader(GL_VERTEX_SHADER, "vertexShader.glsl")), fragmentshader(new FragmentShader(GL_FRAGMENT_SHADER, "fragmentShader.glsl")){
 
-    this->Id = glCreateProgram();
+    glAttachShader(this->id, this->vertexshader->GetId());
+    glAttachShader(this->id, this->fragmentshader->GetId());
 
-    this->Vertexshader = new VertexShader(GL_VERTEX_SHADER, "vertexShader.glsl");
-    this->Fragmentshader = new FragmentShader(GL_FRAGMENT_SHADER, "fragmentShader.glsl");
+    glLinkProgram(this->id);
+    Use();
 
-    glAttachShader(this->Id, this->Vertexshader->getID());
-    glAttachShader(this->Id, this->Fragmentshader->getID());
-    
-    glLinkProgram(this->Id);
-    use();
+    glDeleteShader(this->vertexshader->GetId());
+    glDeleteShader(this->fragmentshader->GetId());
 
-    glDeleteShader(this->Vertexshader->getID());
-    glDeleteShader(this->Fragmentshader->getID());
-
-    delete this->Vertexshader;
-    delete this->Fragmentshader;
+    delete this->vertexshader;
+    delete this->fragmentshader;
 
 }
-
