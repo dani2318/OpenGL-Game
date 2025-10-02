@@ -22,8 +22,7 @@ void Texture2D::Activate(unsigned int texture_unit){
 bool Texture2D::LoadTexture(){
 
     auto exe_path = GetExecutablePath();
-    auto exe_dir = exe_path.parent_path();
-    const auto TEX_PATH = exe_dir / texture_path.c_str();
+    const auto TEX_PATH = exe_path / texture_path.c_str();
 
     std::cerr << "Attempting to load texture from: " << TEX_PATH << '\n';
     if (this->data != nullptr) {

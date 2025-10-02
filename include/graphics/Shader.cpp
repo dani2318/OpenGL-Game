@@ -42,7 +42,14 @@ std::expected<std::string, std::string> ReadShaderFromfile(const std::string& sh
 Shader::Shader(unsigned int type, const char* source)
     : id(glCreateShader(type)){
 
-    std::string shader_path = std::format("gamedata\\shaders\\{}", source);
+    std::string shader_path;
+
+   #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+        shader_path = std::format("gamedata\\shaders\\{}", source);
+    #else
+        shader_path = std::format("gamedata/shaders/{}", source);
+    #endif
+
     const std::expected<std::string, std::string> RESULT = ReadShaderFromfile(shader_path);
 
     if (!RESULT.has_value()) {

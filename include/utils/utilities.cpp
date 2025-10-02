@@ -36,6 +36,6 @@ std::filesystem::path GetExecutablePath() {
     // readlink doesn't null-terminate, so we need to do it ourselves
     path[count] = '\0';
 
-    return std::filesystem::path(path.data());
+    return std::filesystem::path(path.data()).parent_path();
 #endif
 }

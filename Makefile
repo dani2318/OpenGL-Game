@@ -38,7 +38,7 @@ GLAD_OBJ = $(OBJ_DIR)/glad.o
 # OS-specific settings
 ifeq ($(DETECTED_OS),Windows)
 	# Windows-specific settings
-	PROJECT_NAME = main.exe
+	PROJECT_NAME = OpenGL-Game.exe
 	INCLUDES += -I./vendor/glfw/include
 	LIBDIRS = -L./vendor/glfw/lib -L./vendor/glm/lib -L./vendor/glad/lib
 	LIBS = -lglfw3 -lopengl32 -lgdi32 -luser32 -lkernel32 -lshell32 -lmsvcrt -lucrt
@@ -47,7 +47,7 @@ ifeq ($(DETECTED_OS),Windows)
 	RM = @if exist "$(1)" powershell -Command "Get-ChildItem -Path '$(1)' -Exclude 'gamedata' | Remove-Item -Recurse -Force"
 else ifeq ($(DETECTED_OS),Linux)
 	# Linux-specific settings
-	PROJECT_NAME = main
+	PROJECT_NAME = OpenGL-Game
 	# Use pkg-config to get GLFW flags
 	GLFW_CFLAGS := $(shell pkg-config --cflags glfw3 2>/dev/null || echo "-I/usr/include -I/usr/local/include")
 	GLFW_LIBS := $(shell pkg-config --libs glfw3 2>/dev/null || echo "-lglfw")
@@ -59,7 +59,7 @@ else ifeq ($(DETECTED_OS),Linux)
 	RM = @rm -rf $(1)
 else ifeq ($(DETECTED_OS),Darwin)
 	# macOS-specific settings
-	PROJECT_NAME = main
+	PROJECT_NAME = OpenGL-Game
 	INCLUDES += -I/usr/local/include -I/opt/homebrew/include
 	LIBDIRS = -L/usr/local/lib -L/opt/homebrew/lib
 	LIBS = -lglfw -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
