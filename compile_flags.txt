@@ -1,4 +1,4 @@
--Ivendor/glfw/include
+-I/usr/include
 -Ivendor/glad/include
 -Ivendor/glm/include
 -Ivendor/stb/include

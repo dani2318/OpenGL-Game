@@ -1,9 +1,9 @@
 #include "Camera.hpp"
 
 Camera::Camera(){
-    this -> firstMouse = true;
-    this -> yaw = -90.0F;
-    this -> pitch = 90.F;
+    // this -> firstMouse = true;
+    // this -> yaw = -90.0F;
+    // this -> pitch = 90.F;
 }
 
 void Camera::MoveForeward(float speed){
@@ -29,7 +29,7 @@ glm::mat4 Camera::GetViewMatrix(){
                        this->camera_up);
 }
 
-
+/*
 void Camera::camera_mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 
@@ -63,3 +63,4 @@ void Camera::camera_mouse_callback(GLFWwindow* window, double xpos, double ypos)
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     camera_front = glm::normalize(direction);
 }
+ */

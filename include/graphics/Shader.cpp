@@ -1,5 +1,6 @@
 #include "Shader.hpp"
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -7,49 +8,29 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#endif
+
 
 #include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <expected>
-
-
-std::expected<std::filesystem::path, std::string> GetExecutablePath(){
-    constexpr unsigned long BUFFER_SIZE = MAX_PATH;
-    char path[BUFFER_SIZE];
-
-    unsigned long result = GetModuleFileNameA(nullptr, path, BUFFER_SIZE);
-
-    if (result == 0) {
-        return std::unexpected(std::format("Failed to get executable path, error: {}", GetLastError()));
-    }
-
-    if (result >= BUFFER_SIZE) {
-        return std::unexpected("Executable path too long");
-    }
-
-    return std::filesystem::path(path).parent_path();
-
-}
+#include <utils/utilities.hpp>
 
 std::expected<std::string, std::string> ReadShaderFromfile(const std::string& shader_file_name){
     auto exe_dir = GetExecutablePath();
 
-    if(!exe_dir) {
-        return std::unexpected(exe_dir.error());
-}
-
-    const auto SHADER_PATH = *exe_dir / shader_file_name;
+    const auto SHADER_PATH = exe_dir / shader_file_name;
 
     if(!std::filesystem::exists(SHADER_PATH)) {
         return std::unexpected(std::format("Shader not found <{}>", SHADER_PATH.string()));
-}
+    }
 
     std::ifstream file(SHADER_PATH,std::ios::binary);
     if(!file) {
         return std::unexpected(std::format("Cannot open <{}>", SHADER_PATH.string()));
-}
+    }
 
     std::stringstream buffer;
     buffer << file.rdbuf();

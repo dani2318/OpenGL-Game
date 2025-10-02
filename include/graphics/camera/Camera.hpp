@@ -28,7 +28,7 @@ class Camera {
     void MoveBackward(float speed);
     void MoveLeft(float speed);
     void MoveRight(float speed);
-    void camera_mouse_callback(GLFWwindow* window, double xpos, double ypos);
+    // void camera_mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
     private:
         glm::vec3 camera_pos = glm::vec3(0.0F, 0.0F, 3.0F);

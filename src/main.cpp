@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <memory>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -195,7 +196,7 @@ int main(int argc, char **argv) {
               0); // set it manually
 
 
-  glfwSetCursorPosCallback(main_window->GetWindow(), camera->camera_mouse_callback);
+  //glfwSetCursorPosCallback(main_window->GetWindow(), camera->camera_mouse_callback);
 
   std::cout << "Starting main loop\n";
 
