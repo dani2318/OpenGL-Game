@@ -200,7 +200,6 @@ int main(int argc, char **argv) {
 
   glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj));
 
-
   // Main loop
   while (glfwWindowShouldClose(main_window->GetWindow()) == 0) {
 
@@ -221,29 +220,59 @@ int main(int argc, char **argv) {
     glUniformMatrix4fv(view_loc, 1, GL_FALSE,
                        glm::value_ptr(camera->GetViewMatrix()));
 
-    for (unsigned int i = 0; i < 10; i++) {
-      auto current_model = glm::mat4(1.0F); // Start fresh for each cube
-      auto pos = cube_positions.at(i);
-      // Translate and Rotate the cube
-      current_model = glm::translate(current_model, pos);
-      float angle =
-          20.0F * static_cast<float>(i); // Use the fixed rotation value
-      current_model = glm::rotate(current_model, glm::radians(angle),
-                                  glm::vec3(1.0F, 0.3F, 0.5F));
+    auto current_model = glm::mat4(1.0F); // Start fresh for each cube
+    auto pos = cube_positions.at(0);
+    // Translate and Rotate the cube
+    current_model = glm::translate(current_model, pos);
+    float angle =
+        20.0F * static_cast<float>(0); // Use the fixed rotation value
+    current_model = glm::rotate(current_model, glm::radians(angle),
+                                glm::vec3(1.0F, 0.3F, 0.5F));
 
-      // Upload the Model matrix
-      glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(current_model));
+    // Upload the Model matrix
+    glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(current_model));
 
 
-      // Draw the cube
-      glDrawArrays(GL_TRIANGLES, 0, 36);
+    // Draw the cube
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
-    }
+    glm::vec3 axis = glm::vec3(0, 1, 0);
+    glm::vec3 lightpos = main_lighting->GetPos();
+
+    // Create rotation matrix
+    glm::mat4 rotation = glm::mat4(1.0f);
+
+    // Move light to origin (make 'pos' the center of rotation)
+    rotation = glm::translate(rotation, pos);
+
+    // Rotate
+    rotation = glm::rotate(rotation, 0.50f * delta_time, axis);
+
+    // Move back from origin
+    rotation = glm::translate(rotation, -pos);
+
+    // Apply to light position
+    glm::vec3 newLightPos = glm::vec3(rotation * glm::vec4(lightpos, 1.0f));
+    // Apply rotation to position
 
     vao->Unbind();
+    main_lighting->SetPos(newLightPos); // Convert vec4 to vec3
+
+    glUniform3fv(glGetUniformLocation(shader->GetId(), "lightPos"), 1,
+                 glm::value_ptr(main_lighting->GetPos()));
+    glUniform3fv(glGetUniformLocation(shader->GetId(), "lightColor"), 1,
+                 glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
+
+    glUniform3fv(glGetUniformLocation(shader->GetId(), "material.ambient"), 1,
+        glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
+    glUniform3fv(glGetUniformLocation(shader->GetId(), "material.diffuse"), 1,
+        glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
+    glUniform3fv(glGetUniformLocation(shader->GetId(), "material.specular"), 1,
+        glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
+
+    glUniform1f(glGetUniformLocation(shader->GetId(), "material.shininess"), 32.0f);
 
     main_lighting->PaintLight(camera->GetViewMatrix());
-
 
     glfwSwapBuffers(main_window->GetWindow());
     glfwPollEvents();

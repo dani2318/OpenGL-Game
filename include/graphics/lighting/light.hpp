@@ -19,7 +19,7 @@ class Light {
         void PaintLight(glm::mat4 cameraView);
         static glm::vec3 CalculateColor() { return lightColor * toyColor;};
         static glm::vec3 GetPos() {return lightPos;};
-        static void SetPos(glm::vec3 newPos = {1.2f, 1.0f, 2.0f}) {lightPos = newPos;};
+        static void SetPos(glm::vec3 newPos = {5.0f, 100.0f, 20.0f}) {lightPos = newPos;};
     private:
         static inline glm::vec3 coral{1.0f, 0.5f, 0.31f};
         static inline glm::vec3 lightColor{1.0f, 1.0f, 1.0f};
@@ -32,5 +32,5 @@ class Light {
             glm::radians(45.0F), float(1280) / 720,
             0.1F, 100.0F);
         glm::mat4 model = glm::mat4(1.0f);
-        static inline glm::vec3 lightPos{1.2f, 1.0f, 2.0f};
+        static inline glm::vec3 lightPos{5.0f, 100.0f, 20.0f};
 };
