@@ -8,6 +8,11 @@ struct WindowSize {
     int h;
 };
 
+struct WindowParameters {
+  WindowSize size;
+  const char *title;
+};
+
 class Window{
     public:
         Window(WindowSize size, std::string  title);

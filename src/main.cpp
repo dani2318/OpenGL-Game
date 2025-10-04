@@ -1,7 +1,5 @@
 #include <array>
-#include <cstddef>
 #include <iostream>
-#include <memory>
 #include <string>
 
 #include <glad/glad.h>
@@ -18,14 +16,12 @@
 #include <graphics/camera/Camera.hpp>
 #include <graphics/textures/Texture.hpp>
 #include <graphics/window.hpp>
+#include <graphics/lighting/light.hpp>
+#include <graphics/shapes/Cubes.hpp>
+
 
 #include <utils/debug.hpp>
 #define MODULE_NAME "Main"
-
-struct WindowParameters {
-  WindowSize size;
-  const char *title;
-};
 
 constexpr WindowParameters WINDOW_PARAMS = {.size = {.w = 1280, .h = 720},
                                             .title = "OpenGL game"};
@@ -86,35 +82,6 @@ void ProcessInput(GLFWwindow *window) {
   }
 }
 
-float vertices[] = {
-    -0.5F, -0.5F, -0.5F, 0.0F, 0.0F, 0.5F,  -0.5F, -0.5F, 1.0F, 0.0F,
-    0.5F,  0.5F,  -0.5F, 1.0F, 1.0F, 0.5F,  0.5F,  -0.5F, 1.0F, 1.0F,
-    -0.5F, 0.5F,  -0.5F, 0.0F, 1.0F, -0.5F, -0.5F, -0.5F, 0.0F, 0.0F,
-
-    -0.5F, -0.5F, 0.5F,  0.0F, 0.0F, 0.5F,  -0.5F, 0.5F,  1.0F, 0.0F,
-    0.5F,  0.5F,  0.5F,  1.0F, 1.0F, 0.5F,  0.5F,  0.5F,  1.0F, 1.0F,
-    -0.5F, 0.5F,  0.5F,  0.0F, 1.0F, -0.5F, -0.5F, 0.5F,  0.0F, 0.0F,
-
-    -0.5F, 0.5F,  0.5F,  1.0F, 0.0F, -0.5F, 0.5F,  -0.5F, 1.0F, 1.0F,
-    -0.5F, -0.5F, -0.5F, 0.0F, 1.0F, -0.5F, -0.5F, -0.5F, 0.0F, 1.0F,
-    -0.5F, -0.5F, 0.5F,  0.0F, 0.0F, -0.5F, 0.5F,  0.5F,  1.0F, 0.0F,
-
-    0.5F,  0.5F,  0.5F,  1.0F, 0.0F, 0.5F,  0.5F,  -0.5F, 1.0F, 1.0F,
-    0.5F,  -0.5F, -0.5F, 0.0F, 1.0F, 0.5F,  -0.5F, -0.5F, 0.0F, 1.0F,
-    0.5F,  -0.5F, 0.5F,  0.0F, 0.0F, 0.5F,  0.5F,  0.5F,  1.0F, 0.0F,
-
-    -0.5F, -0.5F, -0.5F, 0.0F, 1.0F, 0.5F,  -0.5F, -0.5F, 1.0F, 1.0F,
-    0.5F,  -0.5F, 0.5F,  1.0F, 0.0F, 0.5F,  -0.5F, 0.5F,  1.0F, 0.0F,
-    -0.5F, -0.5F, 0.5F,  0.0F, 0.0F, -0.5F, -0.5F, -0.5F, 0.0F, 1.0F,
-
-    -0.5F, 0.5F,  -0.5F, 0.0F, 1.0F, 0.5F,  0.5F,  -0.5F, 1.0F, 1.0F,
-    0.5F,  0.5F,  0.5F,  1.0F, 0.0F, 0.5F,  0.5F,  0.5F,  1.0F, 0.0F,
-    -0.5F, 0.5F,  0.5F,  0.0F, 0.0F, -0.5F, 0.5F,  -0.5F, 0.0F, 1.0F};
-
-unsigned int indices[] = {
-    0, 1, 3, // first triangle
-    1, 2, 3  // second triangle
-};
 
 Window *main_window = nullptr;
 
@@ -163,6 +130,7 @@ int main(int argc, char **argv) {
   InitOpenGL();
 
   Debug::Info(MODULE_NAME, "Setting up graphics buffers");
+  Light* main_lighting = new Light();
 
   // Shader setup
   vbo = new VBO();
@@ -172,14 +140,30 @@ int main(int argc, char **argv) {
 
   vao->Bind();
   vbo->Bind();
-  VBO::SetBufferData(sizeof(vertices), vertices);
+  vbo->SetBufferData(sizeof(vertices), vertices);
   ebo->Bind();
-  EBO::SetBufferData(sizeof(indices), indices);
+  ebo->SetBufferData(sizeof(indices), indices);
 
   // Location 0 (Position): index=0, size=3, stride_floats=5, offset_floats=0
   vao->SetBufferData(0, 3, 5, 0);
   // Location 2 (TexCoords): index=2, size=2, stride_floats=5, offset_floats=3
   vao->SetBufferData(2, 2, 5, 3);
+
+  shader->Use();
+  // https://learnopengl.com/Lighting/Materials
+  glUniform3fv(glGetUniformLocation(shader->GetId(), "lightPos"), 1,
+               glm::value_ptr(main_lighting->GetPos()));
+  glUniform3fv(glGetUniformLocation(shader->GetId(), "lightColor"), 1,
+               glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
+
+  glUniform3fv(glGetUniformLocation(shader->GetId(), "material.ambient"), 1,
+      glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
+  glUniform3fv(glGetUniformLocation(shader->GetId(), "material.diffuse"), 1,
+      glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
+  glUniform3fv(glGetUniformLocation(shader->GetId(), "material.specular"), 1,
+      glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
+
+  glUniform1f(glGetUniformLocation(shader->GetId(), "material.shininess"), 32.0f);
 
   auto *tex = new Texture2D("gamedata/textures/testtex.png");
 
@@ -216,6 +200,7 @@ int main(int argc, char **argv) {
 
   glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj));
 
+
   // Main loop
   while (glfwWindowShouldClose(main_window->GetWindow()) == 0) {
 
@@ -249,11 +234,16 @@ int main(int argc, char **argv) {
       // Upload the Model matrix
       glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(current_model));
 
+
       // Draw the cube
       glDrawArrays(GL_TRIANGLES, 0, 36);
+
     }
 
-    VAO::Unbind();
+    vao->Unbind();
+
+    main_lighting->PaintLight(camera->GetViewMatrix());
+
 
     glfwSwapBuffers(main_window->GetWindow());
     glfwPollEvents();

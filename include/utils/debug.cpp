@@ -2,23 +2,6 @@
 #include <iostream>
 
 namespace Debug {
-    /*
-        for(int i = 0; i < OutputDevicesCount; i++){
-            if (logLevel < g_OutputDevices[i].logLevel)
-                continue;
-
-            if (g_OutputDevices[i].colored)
-                g_OutputDevices[i].device->Write(g_LogSeverityColors[static_cast<int>(logLevel)]);
-
-            g_OutputDevices[i].device->Format("[%s] ", module);
-            g_OutputDevices[i].device->VFormat(fmt, args);
-
-            if (g_OutputDevices[i].colored)
-                g_OutputDevices[i].device->Write(g_ColorReset);
-
-            g_OutputDevices[i].device->Write('\n');
-        }
-     */
      static void Log(const char* module, Debug::Level log_level, const char* fmt, va_list args) {
          char buffer[1024];
          vsnprintf(buffer, sizeof(buffer), fmt, args);

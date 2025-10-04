@@ -92,7 +92,7 @@ void ShaderProgram::Use() const{
     glUseProgram(this->id);
 }
 
-ShaderProgram::ShaderProgram() : id(glCreateProgram()), vertexshader(new VertexShader(GL_VERTEX_SHADER, "vertexShader.glsl")), fragmentshader(new FragmentShader(GL_FRAGMENT_SHADER, "fragmentShader.glsl")){
+ShaderProgram::ShaderProgram(const char* vertShaderFilename, const char* fragShaderFilename) : id(glCreateProgram()), vertexshader(new VertexShader(GL_VERTEX_SHADER,vertShaderFilename)), fragmentshader(new FragmentShader(GL_FRAGMENT_SHADER, fragShaderFilename)){
 
     if (this->vertexshader->GetId() == 0 || this->fragmentshader->GetId() == 0) {
         Debug::Critical(MODULE_NAME, "Shader objects failed to initialize. Aborting program linkage.");
