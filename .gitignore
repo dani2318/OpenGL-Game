@@ -42,3 +42,5 @@
 
 vendor/
 build/
+__pycache__
+compile_flags.txt

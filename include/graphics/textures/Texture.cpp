@@ -1,10 +1,13 @@
 #include "Texture.hpp"
-#include <iostream>
-#include <utility>
+#include <string>
 #include <utility>
 #include <utils/utilities.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+
+#include <utils/debug.hpp>
+#define MODULE_NAME "Texture"
+
 Texture2D::Texture2D(std::string texture_path)
     : texture_path(std::move(std::move(texture_path)))
 {
@@ -23,8 +26,7 @@ bool Texture2D::LoadTexture(){
 
     auto exe_path = GetExecutablePath();
     const auto TEX_PATH = exe_path / texture_path.c_str();
-
-    std::cerr << "Attempting to load texture from: " << TEX_PATH << '\n';
+    Debug::Info(MODULE_NAME, (std::string("Attempting to load texture from: ") + TEX_PATH.string()).c_str());
     if (this->data != nullptr) {
         stbi_image_free(this->data);
         this->data = nullptr;
@@ -34,8 +36,7 @@ bool Texture2D::LoadTexture(){
 
     if (loaded_data == nullptr)
     {
-        std::string error_msg = "Failed to load texture '" + TEX_PATH.string() + "': " + std::string(stbi_failure_reason());
-        std::cerr << "STB Error: " << error_msg << '\n';
+        Debug::Critical(MODULE_NAME, (std::string("Failed to load texture ") + TEX_PATH.string() + ":" + std::string(stbi_failure_reason())).c_str());
         return false;
     }
     this->data = loaded_data;
@@ -50,12 +51,12 @@ bool Texture2D::Generate(){
 
     auto load_result = LoadTexture();
     if(!load_result) {
-        std::cerr << "Texture generation failed: " << load_result << "\n";
+        Debug::Critical(MODULE_NAME, (std::string("Texture generation failed")).c_str());
         glDeleteTextures(1, &this->id);
         this->id = 0;
         return false;
     } else {
-        std::cout << "Texture loaded correctly from disk: " << this->texture_path << "\n";
+        Debug::Info(MODULE_NAME, (std::string("Texture loaded correctly from disk:") + this->texture_path).c_str());
     }
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -73,11 +74,11 @@ bool Texture2D::Generate(){
     } else if (this->nr_channels == 3) {
         internal_format = GL_RGB;
         data_format = GL_RGB;
-    } else if (this->nr_channels == 1) { // <-- Added support for Grayscale
+    } else if (this->nr_channels == 1) {
         internal_format = GL_RED;
         data_format = GL_RED;
     } else {
-        std::cerr << "Error: Unsupported number of channels: " << this->nr_channels << "\n";
+        Debug::Critical(MODULE_NAME, (std::string("Error: Unsupported number of channels: ") + std::to_string(this->nr_channels)).c_str());
         // *** You should fail the generation here! ***
         glDeleteTextures(1, &this->id);
         this->id = 0;

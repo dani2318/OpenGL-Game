@@ -14,8 +14,5 @@
 #endif
 
 #include <filesystem>
-#include <stdexcept>
-#include <format>
-#include <vector>
 
 std::filesystem::path GetExecutablePath();

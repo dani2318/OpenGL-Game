@@ -1,16 +1,22 @@
 #include "utilities.hpp"
+#include <iostream>
 
+#include <utils/debug.hpp>
+#define MODULE_NAME "Utils"
 
-std::filesystem::path GetExecutablePath() {
+using namespace std;
+
+filesystem::path GetExecutablePath() {
 #ifdef _WIN32
-    std::vector<char> path(MAX_PATH);
-    DWORD result;
+    Debug::Info(MODULE_NAME, "Running under windows. Running search with windows API");
+    vector<char> path(MAX_PATH);
+    DWORD result = 0;
 
     while (true) {
         result = GetModuleFileNameA(nullptr, path.data(), static_cast<DWORD>(path.size()));
 
         if (result == 0) {
-            throw std::runtime_error(std::format("Failed to get executable path, error: {}", GetLastError()));
+            throw runtime_error(std::format("Failed to get executable path, error: {}", GetLastError()));
         }
 
         if (result < path.size()) {
@@ -19,23 +25,21 @@ std::filesystem::path GetExecutablePath() {
 
         path.resize(path.size() * 2);
     }
-
-    return std::filesystem::path(path.data());
 #else
-    std::vector<char> path(PATH_MAX);
+    Debug::Info(MODULE_NAME, "Running under Linux or macOS. Running search with Unix API");
+    vector<char> path(PATH_MAX);
     ssize_t count = readlink("/proc/self/exe", path.data(), path.size());
 
     if (count == -1) {
-        throw std::runtime_error(std::format("Failed to get executable path, errno: {}", errno));
+        throw runtime_error(format("Failed to get executable path, errno: {}", errno));
     }
 
     if (count >= static_cast<ssize_t>(path.size())) {
-        throw std::runtime_error("Executable path too long");
+        throw runtime_error("Executable path too long");
     }
 
     // readlink doesn't null-terminate, so we need to do it ourselves
     path[count] = '\0';
-
-    return std::filesystem::path(path.data()).parent_path();
 #endif
+    return filesystem::path(path.data()).parent_path();
 }

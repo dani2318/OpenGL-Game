@@ -1,4 +1,5 @@
 #include "Shader.hpp"
+#include <cstring>
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #ifndef WIN32_LEAN_AND_MEAN
@@ -9,6 +10,9 @@
 #endif
 #include <windows.h>
 #endif
+
+#include <utils/debug.hpp>
+#define MODULE_NAME "Shader"
 
 
 #include <filesystem>
@@ -53,7 +57,8 @@ Shader::Shader(unsigned int type, const char* source)
     const std::expected<std::string, std::string> RESULT = ReadShaderFromfile(shader_path);
 
     if (!RESULT.has_value()) {
-        std::cerr << "Failed to load shader source: " << RESULT.error() << '\n';
+        std::string err = std::string("Failed to load shader source: ") + RESULT.error();
+        Debug::Error(MODULE_NAME, err.c_str());
         this->id = 0;
         return;
     }
@@ -69,7 +74,8 @@ Shader::Shader(unsigned int type, const char* source)
     glGetShaderiv(this->id, GL_COMPILE_STATUS, &success);
     if (success == 0) {
         glGetShaderInfoLog(this->id, 512, nullptr, info_log);
-        std::cerr << "Shader Compilation Failed:\n" << info_log << '\n';
+        std::string err = std::string("Shader Compilation Failed: ") + info_log;
+        Debug::Error(MODULE_NAME, err.c_str());
     }
 }
 
@@ -89,8 +95,7 @@ void ShaderProgram::Use() const{
 ShaderProgram::ShaderProgram() : id(glCreateProgram()), vertexshader(new VertexShader(GL_VERTEX_SHADER, "vertexShader.glsl")), fragmentshader(new FragmentShader(GL_FRAGMENT_SHADER, "fragmentShader.glsl")){
 
     if (this->vertexshader->GetId() == 0 || this->fragmentshader->GetId() == 0) {
-        std::cerr << "CRITICAL: Shader objects failed to initialize. Aborting program linkage.\n";
-        // Optionally, throw an exception or set this->id to 0 and return.
+        Debug::Critical(MODULE_NAME, "Shader objects failed to initialize. Aborting program linkage.");
         this->id = 0;
         return;
     }
@@ -100,6 +105,7 @@ ShaderProgram::ShaderProgram() : id(glCreateProgram()), vertexshader(new VertexS
 
     glLinkProgram(this->id);
     Use();
+    Debug::Info(MODULE_NAME, "Shader program loaded");
 
     glDeleteShader(this->vertexshader->GetId());
     glDeleteShader(this->fragmentshader->GetId());

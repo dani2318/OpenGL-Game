@@ -28,8 +28,8 @@ class Camera {
     void MoveBackward(float speed);
     void MoveLeft(float speed);
     void MoveRight(float speed);
-    // void camera_mouse_callback(GLFWwindow* window, double xpos, double ypos);
-
+    static void MouseCallback(GLFWwindow* window, double xpos, double ypos);
+    void ProcessMouseMovement(double xpos, double ypos);
     private:
         glm::vec3 camera_pos = glm::vec3(0.0F, 0.0F, 3.0F);
         glm::vec3 camera_target = glm::vec3(0.0F, 0.0F, 0.0F);
@@ -42,6 +42,6 @@ class Camera {
         glm::vec3 up = glm::vec3(0.0F, 1.0F, 0.0F);
         static float yaw;
         static float pitch;
-        static float lastX, lastY;
-        static bool firstMouse;
+        static float last_x, last_y;
+        static bool first_mouse;
 };

@@ -11,8 +11,8 @@ struct WindowSize {
 class Window{
     public:
         Window(WindowSize size, std::string  title);
-        [[nodiscard]] WindowSize Size() const { return this->Size(); };
-        [[nodiscard]] std::string Title() const { return this->Title(); };
+        [[nodiscard]] WindowSize Size() const { return this->window_size; };
+        [[nodiscard]] std::string Title() const { return this->window_title; };
         [[nodiscard]] GLFWwindow* GetWindow() const { return this->window; };
     private:
         WindowSize window_size{};
