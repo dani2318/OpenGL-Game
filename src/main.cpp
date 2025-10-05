@@ -1,6 +1,7 @@
 #include <array>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
@@ -85,9 +86,6 @@ void ProcessInput(GLFWwindow *window) {
 
 Window *main_window = nullptr;
 
-VBO* vbo = nullptr;
-VAO* vao = nullptr;
-EBO* ebo = nullptr;
 ShaderProgram *shader = nullptr;
 
 void InitGLFW() {
@@ -130,58 +128,9 @@ int main(int argc, char **argv) {
   InitOpenGL();
 
   Debug::Info(MODULE_NAME, "Setting up graphics buffers");
-  Light* main_lighting = new Light();
+  Light* main_lighting = new Light(camera);
 
-  // Shader setup
-  vbo = new VBO();
-  vao = new VAO(vbo);
-  ebo = new EBO();
   shader = new ShaderProgram();
-
-  vao->Bind();
-  vbo->Bind();
-  vbo->SetBufferData(sizeof(vertices), vertices);
-  ebo->Bind();
-  ebo->SetBufferData(sizeof(indices), indices);
-
-  // Location 0 (Position): index=0, size=3, stride_floats=5, offset_floats=0
-  vao->SetBufferData(0, 3, 5, 0);
-  // Location 2 (TexCoords): index=2, size=2, stride_floats=5, offset_floats=3
-  vao->SetBufferData(2, 2, 5, 3);
-
-  shader->Use();
-  // https://learnopengl.com/Lighting/Materials
-  glUniform3fv(glGetUniformLocation(shader->GetId(), "lightPos"), 1,
-               glm::value_ptr(main_lighting->GetPos()));
-  glUniform3fv(glGetUniformLocation(shader->GetId(), "lightColor"), 1,
-               glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
-
-  glUniform3fv(glGetUniformLocation(shader->GetId(), "material.ambient"), 1,
-      glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
-  glUniform3fv(glGetUniformLocation(shader->GetId(), "material.diffuse"), 1,
-      glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
-  glUniform3fv(glGetUniformLocation(shader->GetId(), "material.specular"), 1,
-      glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
-
-  glUniform1f(glGetUniformLocation(shader->GetId(), "material.shininess"), 32.0f);
-
-  auto *tex = new Texture2D("gamedata/textures/testtex.png");
-
-  if (!tex->Generate()) {
-    Debug::Critical(MODULE_NAME, "Texture generation failed. Exiting.");
-    return -1;
-  }
-
-  if (shader->GetId() == 0) {
-    Debug::Critical(MODULE_NAME, "Invalid shader program found. Exiting.");
-    return -1;
-  }
-
-  shader->Use();
-  Texture2D::Activate(GL_TEXTURE0);
-  tex->Bind();
-  glUniform1i(glGetUniformLocation(shader->GetId(), "texture1"),
-              0); // set it manually
 
   // After creating the window and before the main loop:
   glfwSetWindowUserPointer(main_window->GetWindow(), camera);
@@ -200,6 +149,11 @@ int main(int argc, char **argv) {
 
   glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj));
 
+  std::vector<Cube*> cubes;
+  for (int i = 0; i < cube_positions.size(); i++) {
+      cubes.push_back(new Cube(shader, cube_positions.at(i), main_lighting, camera));
+  }
+
   // Main loop
   while (glfwWindowShouldClose(main_window->GetWindow()) == 0) {
 
@@ -213,64 +167,26 @@ int main(int argc, char **argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader->Use();
-    Texture2D::Activate(GL_TEXTURE0);
-    tex->Bind();
-    vao->Bind();
-
-    glUniformMatrix4fv(view_loc, 1, GL_FALSE,
-                       glm::value_ptr(camera->GetViewMatrix()));
-
-    auto current_model = glm::mat4(1.0F); // Start fresh for each cube
-    auto pos = cube_positions.at(0);
-    // Translate and Rotate the cube
-    current_model = glm::translate(current_model, pos);
-    float angle =
-        20.0F * static_cast<float>(0); // Use the fixed rotation value
-    current_model = glm::rotate(current_model, glm::radians(angle),
-                                glm::vec3(1.0F, 0.3F, 0.5F));
-
-    // Upload the Model matrix
-    glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(current_model));
-
-
-    // Draw the cube
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-
-    glm::vec3 axis = glm::vec3(0, 1, 0);
-    glm::vec3 lightpos = main_lighting->GetPos();
-
-    // Create rotation matrix
-    glm::mat4 rotation = glm::mat4(1.0f);
-
-    // Move light to origin (make 'pos' the center of rotation)
-    rotation = glm::translate(rotation, pos);
-
-    // Rotate
-    rotation = glm::rotate(rotation, 0.50f * delta_time, axis);
-
-    // Move back from origin
-    rotation = glm::translate(rotation, -pos);
-
-    // Apply to light position
-    glm::vec3 newLightPos = glm::vec3(rotation * glm::vec4(lightpos, 1.0f));
-    // Apply rotation to position
-
-    vao->Unbind();
-    main_lighting->SetPos(newLightPos); // Convert vec4 to vec3
-
     glUniform3fv(glGetUniformLocation(shader->GetId(), "lightPos"), 1,
                  glm::value_ptr(main_lighting->GetPos()));
-    glUniform3fv(glGetUniformLocation(shader->GetId(), "lightColor"), 1,
-                 glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
 
-    glUniform3fv(glGetUniformLocation(shader->GetId(), "material.ambient"), 1,
-        glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
-    glUniform3fv(glGetUniformLocation(shader->GetId(), "material.diffuse"), 1,
-        glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
-    glUniform3fv(glGetUniformLocation(shader->GetId(), "material.specular"), 1,
-        glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
+    for (Cube* cube : cubes) {
+        cube->Draw(view_loc, model_loc);
+    }
 
-    glUniform1f(glGetUniformLocation(shader->GetId(), "material.shininess"), 32.0f);
+    // Sun arc from horizon to horizon
+    static float sunAngle = 0.0f;
+    sunAngle += 0.2f * delta_time;
+
+    float orbitRadius = 20.0f;
+    glm::vec3 center = cube_positions.at(0);
+
+    glm::vec3 newLightPos;
+    newLightPos.x = center.x + orbitRadius * cos(sunAngle);
+    newLightPos.y = center.y + orbitRadius * sin(sunAngle);  // Arcs up and down
+    newLightPos.z = center.z;  // Fixed depth
+
+    main_lighting->SetPos(newLightPos);
 
     main_lighting->PaintLight(camera->GetViewMatrix());
 
@@ -279,9 +195,6 @@ int main(int argc, char **argv) {
   }
 
   // Cleanup
-  delete vbo;
-  delete vao;
-  delete ebo;
   delete shader;
 
   glfwDestroyWindow(main_window->GetWindow());

@@ -11,11 +11,13 @@
 #include <graphics/buffers/VAO.hpp>
 #include <graphics/buffers/EBO.hpp>
 #include <graphics/Shader.hpp>
+#include <graphics/camera/Camera.hpp>
+#include <graphics/shapes/LightCube.hpp>
 
 class Light {
 
     public:
-        Light();
+        Light(Camera* main_camera);
         void PaintLight(glm::mat4 cameraView);
         static glm::vec3 CalculateColor() { return lightColor * toyColor;};
         static glm::vec3 GetPos() {return lightPos;};
@@ -28,6 +30,8 @@ class Light {
         VBO* lightVBO = new VBO();
         VAO* lightVAO = new VAO(lightVBO);
         EBO* lightEBO = new EBO();
+        Camera* main_camera = nullptr;
+        LightCube* lightCube = nullptr;
         glm::mat4 proj = glm::perspective(
             glm::radians(45.0F), float(1280) / 720,
             0.1F, 100.0F);
