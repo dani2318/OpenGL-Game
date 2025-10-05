@@ -178,7 +178,7 @@ int main(int argc, char **argv) {
     static float sunAngle = 0.0f;
     sunAngle += 0.2f * delta_time;
 
-    float orbitRadius = 20.0f;
+    float orbitRadius = 60.0f;
     glm::vec3 center = cube_positions.at(0);
 
     glm::vec3 newLightPos;
