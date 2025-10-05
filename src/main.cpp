@@ -16,6 +16,7 @@
 #include <graphics/buffers/VBO.hpp>
 #include <graphics/camera/Camera.hpp>
 #include <graphics/textures/Texture.hpp>
+#include <graphics/textures/TextureAtlas.hpp>
 #include <graphics/window.hpp>
 #include <graphics/lighting/light.hpp>
 #include <graphics/shapes/Cubes.hpp>
@@ -149,9 +150,16 @@ int main(int argc, char **argv) {
 
   glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(proj));
 
+
+  auto* atlas = new TextureAtlas();
+
+  TextureAtlasElement element = {};
+
+  atlas->AddTexture(new Texture2D("gamedata/textures/testtex.png"));
+
   std::vector<Cube*> cubes;
   for (int i = 0; i < cube_positions.size(); i++) {
-      cubes.push_back(new Cube(shader, cube_positions.at(i), main_lighting, camera));
+      cubes.push_back(new Cube(shader, cube_positions.at(i),atlas->GetElementByID(0)->texture, main_lighting, camera));
   }
 
   // Main loop
@@ -175,18 +183,13 @@ int main(int argc, char **argv) {
     }
 
     // Sun arc from horizon to horizon
-    static float sunAngle = 0.0f;
-    sunAngle += 0.2f * delta_time;
+    static float sun_angle = 0.0f;
+    sun_angle += 0.2f * delta_time;
 
-    float orbitRadius = 60.0f;
+    float orbit_radius = 60.0f;
     glm::vec3 center = cube_positions.at(0);
 
-    glm::vec3 newLightPos;
-    newLightPos.x = center.x + orbitRadius * cos(sunAngle);
-    newLightPos.y = center.y + orbitRadius * sin(sunAngle);  // Arcs up and down
-    newLightPos.z = center.z;  // Fixed depth
-
-    main_lighting->SetPos(newLightPos);
+    main_lighting->SetPos({center.x + (orbit_radius * cos(sun_angle)), center.y + (orbit_radius * sin(sun_angle)),  center.z});
 
     main_lighting->PaintLight(camera->GetViewMatrix());
 

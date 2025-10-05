@@ -33,7 +33,7 @@ unsigned int Cube::indices[] = {
     1, 2, 3  // second triangle
 };
 
-Cube::Cube(ShaderProgram* main_shader, glm::vec3 pos, Light* main_light, Camera* main_camera) : shader(main_shader), main_camera(main_camera), main_light(main_light), cube_vbo(new VBO()), cube_ebo(new EBO()), pos(pos){
+Cube::Cube(ShaderProgram* main_shader, glm::vec3 pos, Texture2D *tex, Light* main_light, Camera* main_camera) : shader(main_shader), main_camera(main_camera), main_light(main_light), cube_vbo(new VBO()), cube_ebo(new EBO()), pos(pos), tex(tex){
     // Shader setup
     cube_vao = new VAO(cube_vbo);
 

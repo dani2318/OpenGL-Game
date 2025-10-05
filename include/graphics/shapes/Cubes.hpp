@@ -21,7 +21,7 @@
 class Cube{
 
     public:
-        Cube(ShaderProgram* main_shader, glm::vec3 pos, Light* main_light, Camera* main_camera);
+        Cube(ShaderProgram* main_shader, glm::vec3 pos, Texture2D *tex, Light* main_light, Camera* main_camera);
         bool Draw(int view_loc, int model_loc);
 
     private:
@@ -34,5 +34,5 @@ class Cube{
         EBO* cube_ebo = nullptr;
         VBO* cube_vbo = nullptr;
         glm::vec3 pos;
-        Texture2D *tex = new Texture2D("gamedata/textures/testtex.png");
+        Texture2D *tex = nullptr;
 };
