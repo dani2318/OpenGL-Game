@@ -3,43 +3,69 @@
 #define MODULE_NAME "CUBE"
 
 
-float Cube::vertices[] = {
-    -0.5F, -0.5F, -0.5F, 0.0F, 0.0F, 0.5F,  -0.5F, -0.5F, 1.0F, 0.0F,
-    0.5F,  0.5F,  -0.5F, 1.0F, 1.0F, 0.5F,  0.5F,  -0.5F, 1.0F, 1.0F,
-    -0.5F, 0.5F,  -0.5F, 0.0F, 1.0F, -0.5F, -0.5F, -0.5F, 0.0F, 0.0F,
+static constexpr float FACE_VERTICES[6][30] = {
+    // FRONT (+Z)
+    {-0.5F, -0.5F, 0.5F, 0.0F, 0.0F,
+     0.5F, -0.5F, 0.5F, 1.0F, 0.0F,
+     0.5F, 0.5F, 0.5F, 1.0F, 1.0F,
+     0.5F, 0.5F, 0.5F, 1.0F, 1.0F,
+     -0.5F, 0.5F, 0.5F, 0.0F, 1.0F,
+     -0.5F, -0.5F, 0.5F, 0.0F, 0.0F},
 
-    -0.5F, -0.5F, 0.5F,  0.0F, 0.0F, 0.5F,  -0.5F, 0.5F,  1.0F, 0.0F,
-    0.5F,  0.5F,  0.5F,  1.0F, 1.0F, 0.5F,  0.5F,  0.5F,  1.0F, 1.0F,
-    -0.5F, 0.5F,  0.5F,  0.0F, 1.0F, -0.5F, -0.5F, 0.5F,  0.0F, 0.0F,
+    // BACK (-Z)
+    {-0.5F, -0.5F, -0.5F, 0.0F, 0.0F,
+     0.5F, 0.5F, -0.5F, 1.0F, 1.0F,
+     0.5F, -0.5F, -0.5F, 1.0F, 0.0F,
+     0.5F, 0.5F, -0.5F, 1.0F, 1.0F,
+     -0.5F, -0.5F, -0.5F, 0.0F, 0.0F,
+     -0.5F, 0.5F, -0.5F, 0.0F, 1.0F},
 
-    -0.5F, 0.5F,  0.5F,  1.0F, 0.0F, -0.5F, 0.5F,  -0.5F, 1.0F, 1.0F,
-    -0.5F, -0.5F, -0.5F, 0.0F, 1.0F, -0.5F, -0.5F, -0.5F, 0.0F, 1.0F,
-    -0.5F, -0.5F, 0.5F,  0.0F, 0.0F, -0.5F, 0.5F,  0.5F,  1.0F, 0.0F,
+    // LEFT (-X)
+    {-0.5F, 0.5F, 0.5F, 1.0F, 0.0F,
+     -0.5F, 0.5F, -0.5F, 1.0F, 1.0F,
+     -0.5F, -0.5F, -0.5F, 0.0F, 1.0F,
+     -0.5F, -0.5F, -0.5F, 0.0F, 1.0F,
+     -0.5F, -0.5F, 0.5F, 0.0F, 0.0F,
+     -0.5F, 0.5F, 0.5F, 1.0F, 0.0F},
 
-    0.5F,  0.5F,  0.5F,  1.0F, 0.0F, 0.5F,  0.5F,  -0.5F, 1.0F, 1.0F,
-    0.5F,  -0.5F, -0.5F, 0.0F, 1.0F, 0.5F,  -0.5F, -0.5F, 0.0F, 1.0F,
-    0.5F,  -0.5F, 0.5F,  0.0F, 0.0F, 0.5F,  0.5F,  0.5F,  1.0F, 0.0F,
+    // RIGHT (+X)
+    {0.5F, 0.5F, 0.5F, 1.0F, 0.0F,
+     0.5F, -0.5F, -0.5F, 0.0F, 1.0F,
+     0.5F, 0.5F, -0.5F, 1.0F, 1.0F,
+     0.5F, -0.5F, -0.5F, 0.0F, 1.0F,
+     0.5F, 0.5F, 0.5F, 1.0F, 0.0F,
+     0.5F, -0.5F, 0.5F, 0.0F, 0.0F},
 
-    -0.5F, -0.5F, -0.5F, 0.0F, 1.0F, 0.5F,  -0.5F, -0.5F, 1.0F, 1.0F,
-    0.5F,  -0.5F, 0.5F,  1.0F, 0.0F, 0.5F,  -0.5F, 0.5F,  1.0F, 0.0F,
-    -0.5F, -0.5F, 0.5F,  0.0F, 0.0F, -0.5F, -0.5F, -0.5F, 0.0F, 1.0F,
+    // TOP (+Y)
+    {-0.5F, 0.5F, -0.5F, 0.0F, 1.0F,
+     0.5F, 0.5F, 0.5F, 1.0F, 0.0F,
+     0.5F, 0.5F, -0.5F, 1.0F, 1.0F,
+     0.5F, 0.5F, 0.5F, 1.0F, 0.0F,
+     -0.5F, 0.5F, -0.5F, 0.0F, 1.0F,
+     -0.5F, 0.5F, 0.5F, 0.0F, 0.0F},
 
-    -0.5F, 0.5F,  -0.5F, 0.0F, 1.0F, 0.5F,  0.5F,  -0.5F, 1.0F, 1.0F,
-    0.5F,  0.5F,  0.5F,  1.0F, 0.0F, 0.5F,  0.5F,  0.5F,  1.0F, 0.0F,
-    -0.5F, 0.5F,  0.5F,  0.0F, 0.0F, -0.5F, 0.5F,  -0.5F, 0.0F, 1.0F};
+    // BOTTOM (-Y)
+    {-0.5F, -0.5F, -0.5F, 0.0F, 1.0F,
+     0.5F, -0.5F, -0.5F, 1.0F, 1.0F,
+     0.5F, -0.5F, 0.5F, 1.0F, 0.0F,
+     0.5F, -0.5F, 0.5F, 1.0F, 0.0F,
+     -0.5F, -0.5F, 0.5F, 0.0F, 0.0F,
+     -0.5F, -0.5F, -0.5F, 0.0F, 1.0F}
+};
 
 unsigned int Cube::indices[] = {
     0, 1, 3, // first triangle
     1, 2, 3  // second triangle
 };
 
-Cube::Cube(ShaderProgram* main_shader, glm::vec3 pos, Texture2D *tex, Light* main_light, Camera* main_camera) : shader(main_shader), main_camera(main_camera), main_light(main_light), cube_vbo(new VBO()), cube_ebo(new EBO()), pos(pos), tex(tex){
-    // Shader setup
+Cube::Cube(ShaderProgram* main_shader, glm::vec3 pos, Texture2D *tex, Light* main_light, Camera* main_camera, uint8_t visible_faces)
+    : shader(main_shader), main_camera(main_camera), main_light(main_light),
+      cube_vbo(new VBO()), pos(pos), tex(tex), visible_faces(visible_faces){    // Shader setup
     cube_vao = new VAO(cube_vbo);
 
     cube_vao->Bind();
     cube_vbo->Bind();
-    cube_vbo->SetBufferData(sizeof(vertices), vertices);
+    cube_vbo->SetBufferData(mesh_vertices.size() * sizeof(float), mesh_vertices.data());
     cube_ebo->Bind();
     cube_ebo->SetBufferData(sizeof(indices), indices);
 
@@ -64,11 +90,6 @@ Cube::Cube(ShaderProgram* main_shader, glm::vec3 pos, Texture2D *tex, Light* mai
 
     glUniform1f(glGetUniformLocation(shader->GetId(), "material.shininess"), 32.0f);
 
-    if (!tex->Generate()) {
-      Debug::Critical(MODULE_NAME, "Texture generation failed. Exiting.");
-      return;
-    }
-
     if (shader->GetId() == 0) {
       Debug::Critical(MODULE_NAME, "Invalid shader program found. Exiting.");
       return;
@@ -81,7 +102,38 @@ Cube::Cube(ShaderProgram* main_shader, glm::vec3 pos, Texture2D *tex, Light* mai
 
 }
 
-bool Cube::Draw(int view_loc, int model_loc){
+
+void Cube::GenerateMesh() {
+    mesh_vertices.clear();
+
+    // Check each face and add vertices if visible
+    for (int face = 0; face < 6; face++) {
+        if (visible_faces & (1 << face)) {
+            // Add all 30 floats (6 vertices * 5 floats) for this face
+            for (int i = 0; i < 30; i++) {
+                mesh_vertices.push_back(FACE_VERTICES[face][i]);
+            }
+        }
+    }
+
+    needs_remesh = false;
+}
+
+void Cube::UpdateMesh() {
+    if (!needs_remesh) return;
+
+    GenerateMesh();
+
+    cube_vbo->Bind();
+    cube_vbo->SetBufferData(mesh_vertices.size() * sizeof(float), mesh_vertices.data());
+}
+
+bool Cube::Draw(int view_loc, int model_loc) {
+    if (needs_remesh) {
+        UpdateMesh();
+    }
+
+    if (mesh_vertices.empty()) return false; // Nothing to draw
 
     shader->Use();
     Texture2D::Activate(GL_TEXTURE0);
@@ -91,20 +143,13 @@ bool Cube::Draw(int view_loc, int model_loc){
     glUniformMatrix4fv(view_loc, 1, GL_FALSE,
                        glm::value_ptr(main_camera->GetViewMatrix()));
 
-    auto current_model = glm::mat4(1.0F); // Start fresh for each cube
-    // Translate and Rotate the cube
+    auto current_model = glm::mat4(1.0F);
     current_model = glm::translate(current_model, pos);
-    float angle =
-        20.0F * static_cast<float>(0); // Use the fixed rotation value
-    current_model = glm::rotate(current_model, glm::radians(angle),
-                                glm::vec3(1.0F, 0.3F, 0.5F));
 
-    // Upload the Model matrix
     glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(current_model));
 
-
-    // Draw the cube
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    // Draw only the vertices we generated
+    glDrawArrays(GL_TRIANGLES, 0, mesh_vertices.size() / 5);
 
     return true;
 }

@@ -17,6 +17,7 @@ class TextureAtlas {
         ~TextureAtlas();
         void AddTexture(Texture2D* element);
         TextureAtlasElement* GetElementByID(int index);
+        int GetCount() const { return count; };
 
     private:
         TextureAtlasElement* atlas_head;
