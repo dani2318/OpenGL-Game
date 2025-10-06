@@ -84,9 +84,9 @@ Window *main_window = nullptr;
 
 ShaderProgram *shader = nullptr;
 
-const int x_size = 5;
-const int y_size = 2;
-const int z_size = 5;
+const int x_size = 16;
+const int y_size = 16;
+const int z_size = 16;
 std::array<glm::vec3, x_size*y_size*z_size> cube_positions = {};
 
 // Helper function to check if a block exists at position
@@ -144,7 +144,7 @@ void InitOpenGL() {
   // Cull front faces instead
   glEnable(GL_CULL_FACE);
   glCullFace(GL_FRONT);      // Changed from GL_BACK
-  glFrontFace(GL_CCW);
+  glFrontFace(GL_CW);
 
   glViewport(0, 0, WINDOW_PARAMS.size.w, WINDOW_PARAMS.size.h);
   glfwSetFramebufferSizeCallback(main_window->GetWindow(),

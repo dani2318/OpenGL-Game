@@ -60,8 +60,10 @@ unsigned int Cube::indices[] = {
 
 Cube::Cube(ShaderProgram* main_shader, glm::vec3 pos, Texture2D *tex, Light* main_light, Camera* main_camera, uint8_t visible_faces)
     : shader(main_shader), main_camera(main_camera), main_light(main_light),
-      cube_vbo(new VBO()), pos(pos), tex(tex), visible_faces(visible_faces){    // Shader setup
+      cube_vbo(new VBO()), cube_ebo(new EBO()), pos(pos), tex(tex), visible_faces(visible_faces){    // Shader setup
     cube_vao = new VAO(cube_vbo);
+
+    GenerateMesh();
 
     cube_vao->Bind();
     cube_vbo->Bind();
