@@ -2,9 +2,13 @@
 #include <iostream>
 
 #include <utils/debug.hpp>
+
+
 #define MODULE_NAME "Utils"
 
 using namespace std;
+
+
 
 filesystem::path GetExecutablePath() {
 #ifdef _WIN32
@@ -42,4 +46,31 @@ filesystem::path GetExecutablePath() {
     path[count] = '\0';
 #endif
     return filesystem::path(path.data()).parent_path();
+}
+
+
+// Helper function to check if a block exists at position
+bool IsBlockSolid(glm::vec3 position) {
+  if (position.x < 0 || position.x >= x_size || position.y < 0 || position.y >= y_size || position.z < 0 || position.z >= z_size) {
+    return false; // Outside bounds = no block
+  }
+  return true; // For now, all positions have blocks
+}
+
+uint8_t CheckFace(glm::vec3 position, CubeFace direction){
+    uint8_t faces = 0;
+    if (!IsBlockSolid({position.x, position.y, position.z}))
+      return faces |= (uint8_t)direction;
+
+    return faces;
+}
+// Calculate which faces should be visible
+uint8_t CalculateVisibleFaces(int x, int y, int z) {
+  // Check each direction
+  return  CheckFace({x, y, z + 1}, CubeFace::FRONT) |
+          CheckFace({x, y, z - 1}, CubeFace::BACK)  |
+          CheckFace({x - 1, y, z}, CubeFace::LEFT)  |
+          CheckFace({x + 1, y, z}, CubeFace::RIGHT) |
+          CheckFace({x, y + 1, z}, CubeFace::TOP)   |
+          CheckFace({x, y - 1, z}, CubeFace::BOTTOM);
 }

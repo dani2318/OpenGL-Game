@@ -53,7 +53,7 @@ else ifeq ($(DETECTED_OS),Linux)
 	GLFW_LIBS := $(shell pkg-config --libs glfw3 2>/dev/null || echo "-lglfw")
 	INCLUDES += $(GLFW_CFLAGS)
 	LIBDIRS = -L/usr/lib/x86_64-linux-gnu -L/usr/lib -L/usr/local/lib
-	LIBS = $(GLFW_LIBS) -lGL -lX11 -lpthread -lXrandr -lXi -ldl
+	LIBS = $(GLFW_LIBS)  -lGL -lX11 -lpthread -lXrandr -lXi -ldl
 	LDFLAGS =
 	MKDIR = @mkdir -p $(1)
 	RM = @rm -rf $(1)
@@ -62,7 +62,7 @@ else ifeq ($(DETECTED_OS),Darwin)
 	PROJECT_NAME = OpenGL-Game
 	INCLUDES += -I/usr/local/include -I/opt/homebrew/include
 	LIBDIRS = -L/usr/local/lib -L/opt/homebrew/lib
-	LIBS = -lglfw -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
+	LIBS = -lglfw  -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
 	LDFLAGS =
 	MKDIR = @mkdir -p $(1)
 	RM = @rm -rf $(1)

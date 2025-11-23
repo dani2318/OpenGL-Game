@@ -18,6 +18,9 @@
           "-std=c++23",
           "-v"
         ]
+      },
+      "fetch": {
+        "pre_release": true
       }
     }
   }

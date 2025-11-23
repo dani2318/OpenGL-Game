@@ -2,6 +2,7 @@
 -Ivendor/glad/include
 -Ivendor/glm/include
 -Ivendor/stb/include
+-Ivendor/yaml-cpp/include
 -Iinclude
 -D_DEBUG
 -DUNICODE
