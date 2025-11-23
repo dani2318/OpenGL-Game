@@ -1,0 +1,24 @@
+{
+  "lsp": {
+    "clangd": {
+      "binary": {
+        "path": "C:/Program Files/LLVM/bin/clangd.exe"
+      },
+      "initialization_options": {
+        "compilationDatabasePath": ".",
+        "fallbackFlags": [
+          "-Ivendor/glfw/include",
+          "-Ivendor/glad/include",
+          "-Ivendor/glm/include",
+          "-Ivendor/stb/include",
+          "-Iinclude",
+          "-D_DEBUG",
+          "-DUNICODE",
+          "-D_UNICODE",
+          "-std=c++23",
+          "-v"
+        ]
+      }
+    }
+  }
+}

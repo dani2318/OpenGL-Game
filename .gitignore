@@ -39,3 +39,8 @@
 
 # debug information files
 *.dwo
+
+vendor/
+build/
+__pycache__
+compile_flags.txt

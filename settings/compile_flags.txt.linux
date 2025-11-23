@@ -1,0 +1,9 @@
+-I/usr/include
+-Ivendor/glad/include
+-Ivendor/glm/include
+-Ivendor/stb/include
+-Iinclude
+-D_DEBUG
+-DUNICODE
+-D_UNICODE
+-std=c++23

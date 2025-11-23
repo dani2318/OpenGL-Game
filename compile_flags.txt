@@ -1,0 +1,10 @@
+-Ivendor/glfw/include
+-Ivendor/glad/include
+-Ivendor/glm/include
+-Ivendor/stb/include
+-Ivendor/yaml-cpp/include
+-Iinclude
+-D_DEBUG
+-DUNICODE
+-D_UNICODE
+-std=c++23
